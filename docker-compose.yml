@@ -1,0 +1,35 @@
+version: '3'
+
+services:
+  database:
+    image: mysql:latest
+    volumes:
+      - ./dbinit/students-db.sql:/docker-entrypoint-initdb.d/0_init.sql
+    ports:
+      - 3307:3306
+    expose:
+      - 3306
+    environment:
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - database
+    environment:
+      MYSQL_HOST: database # Use the service name as the host
+      MYSQL_USER: root # MySQL user
+      MYSQL_PASSWORD:
+      MYSQL_DATABASE: students # MySQL database name
+      PORT: 5000 # Port your Node.js application listens on
+    ports:
+      - 5000:5000
+    expose:
+      - 5000 # Expose port 5000
+    restart: on-failure
+
+volumes:
+  mysql_data:
+    external: true
+
